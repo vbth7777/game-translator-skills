@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C# / .NET / Unity artifacts
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+
+# Localization temporary files
+localization_workspace/
+scratch/
+chunks/
+*.log
+*.tmp
+*.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+.vscode/
