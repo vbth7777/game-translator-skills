@@ -40,6 +40,7 @@ Tài liệu này cung cấp ma trận nhận diện nhanh các loại game engin
 ---
 
 ## 3. RPG Maker
+- **Skill hỗ trợ**: `game-translator-rpgmaker`
 - **RPG Maker MV / MZ**:
   - `package.json` với trường `"main": "index.html"` (chạy trên môi trường NW.js).
   - Thư mục `www/data/` (MV) hoặc `data/` (MZ) chứa các file `MapXXX.json`, `Actors.json`, `CommonEvents.json`, `System.json`.

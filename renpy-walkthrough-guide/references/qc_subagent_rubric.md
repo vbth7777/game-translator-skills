@@ -34,3 +34,4 @@ Subagent đảm nhận vai trò **Quality Check (QC Verifier)** chịu trách nh
 | **Không lỗi thị giác** | 25% | Tuyệt đối không đè chữ, không lệch khung thoại, không răng cưa vỡ nét. |
 | **Chính xác theo mã nguồn** | 25% | Tọa độ nhấp chuột, tên biến số, điều kiện rẽ nhánh và cạm bẫy khớp 100% với code game. |
 | **Trải nghiệm người đọc** | 20% | Có bảng mục lục tổng quan, có cả định dạng Markdown và HTML tương tác dark-mode sang trọng. |
+

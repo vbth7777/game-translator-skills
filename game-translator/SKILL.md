@@ -31,7 +31,8 @@ python game-translator/scripts/detect_engine.py "<PATH_TO_GAME>" --json
 
 - If **Ren'Py**: Route immediately to `game-translator-renpy`.
 - If **Unity** (Mono or IL2CPP): Route immediately to `game-translator-unity`.
-- If **RPG Maker / Unreal / Godot**: Inform the user and apply standard extraction fallback.
+- If **RPG Maker** (MV, MZ, VX Ace, XP): Route immediately to `game-translator-rpgmaker`.
+- If **Unreal / Godot**: Inform the user and apply standard extraction fallback.
 
 See [engine_fingerprints.md](file:///d:/Development/Projects/game-translator-skills/game-translator/references/engine_fingerprints.md) for full architecture signatures.
 
@@ -72,4 +73,5 @@ python game-translator/scripts/search_game_lore.py "<GAME_TITLE>" --out "<GAME_D
 
 - **For Ren'Py Games**: Invoke [game-translator-renpy](file:///d:/Development/Projects/game-translator-skills/game-translator-renpy/SKILL.md).
 - **For Unity Games**: Invoke [game-translator-unity](file:///d:/Development/Projects/game-translator-skills/game-translator-unity/SKILL.md).
+- **For RPG Maker Games**: Invoke [game-translator-rpgmaker](file:///d:/Development/Projects/game-translator-skills/game-translator-rpgmaker/SKILL.md).
 

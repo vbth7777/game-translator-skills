@@ -72,3 +72,4 @@ python renpy-walkthrough-guide/scripts/export_html_walkthrough.py "<OUT_DIR>/wal
 
 - [walkthrough_methodology.md](file:///d:/Development/Projects/game-translator-skills/renpy-walkthrough-guide/references/walkthrough_methodology.md): Core methodology and lessons learned.
 - [qc_subagent_rubric.md](file:///d:/Development/Projects/game-translator-skills/renpy-walkthrough-guide/references/qc_subagent_rubric.md): Comprehensive rubric for the QC Subagent.
+

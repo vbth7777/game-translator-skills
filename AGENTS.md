@@ -10,6 +10,7 @@
 - **Engines Supported**:
   1. **Ren'Py Engine** (Visual Novels, Ren'Py 7/8, Python 2/3, RPA archives, RPYC AST, Live2D, Python in-memory dictionaries, dynamic speech bubbles).
   2. **Unity Engine** (Mono & IL2CPP 64-bit, TextMeshPro, UGUI, BepInEx 5/6, MelonLoader, XUnity.AutoTranslator, UnityPy, AssetStudio, JSON/TSV hooks).
+  3. **RPG Maker Engine** (MV, MZ, VX Ace, XP: JSON data/maps, consecutive 401 Show Text multi-line aggregation, face expression 0-7, multi-phase pairwise pronoun rules, AutoWordWrap.js plugin, 100% CJK leak audit).
 
 ---
 
@@ -41,6 +42,8 @@
   - *Sự cố 2 (Sót hội thoại tiếng Anh & Lỗi intro.rpy)*: Xuất tệp `intro.rpy` bị gộp thành 1 dòng chứa escaped `\n` khiến Ren'Py bỏ qua và fallback về tiếng Anh gốc -> **Giải pháp**: Viết `audit_dialogue_coverage.py` tự động phát hiện `CORRUPTED FORMAT` và đo chính xác % dòng thoại từng file.
   - *Sự cố 3 (Dynamic Speech Bubbles & Python Lists)*: Các câu thoại ngẫu nhiên (`WOMAN_TALK`, `_emit_talk_steps`, `add_notification`) không qua lệnh `say` thông thường -> **Giải pháp**: Nâng cấp `extract_python_strings.py` quét mảng chuỗi Python và cung cấp template `dynamic_bubbles_patch.rpy` móc hàm runtime vào `renpy.translation.translate_string()`.
   - *Sự cố 4 (Khóa mã Patreon / Gallery)*: Khóa SHA256 + Salt trong `patreon_gate.rpy` cản trở kiểm tra CG/H-scenes -> **Giải pháp**: Cung cấp cẩm nang `patreon_gallery_unlock_guide.md` với kỹ thuật inject mã vạn năng (`UNLOCK`, `ALL`, `BETA`) hoặc bypass gate.
+- **RPG Maker Benchmark (`rpg-translate` Lineage)**: `D:\Development\Projects\MyBestApp\tools\rpg-translator` & `D:\Development\Tools\rpg-translator` (8,965-line Python engine + Tauri/React app with Omniscient Long-Context Lorebook, face expressions 0-7, mood detection for H-scenes/combat/drama, semantic scene chunking, and AutoWordWrap.js plugin):
+  - *Chuyển dịch cốt lõi*: Chuyển đổi mô hình gọi API bên ngoài (OpenRouter/Venice) sang mô hình Antigravity Agent + Subagents tự dịch trực tiếp (`game-chunk-translator`), kế thừa 100% logic Lorebook, phân tích biểu cảm và ngữ cảnh phong phú.
 - **Walkthrough Benchmark (Session `62e271c6-f25b-4c18-b886-b2451f3f445a`)**: `PAWGVERSE` Nami Treasure Route Walkthrough:
   - *Sự cố 1 (Đoán mò route & Thiếu vật phẩm)*: Ban đầu thiếu bước mua Cuốc Chim ($70) tại Chợ Bazzar khiến route bị kẹt -> **Giải pháp**: Viết `analyze_renpy_routes.py` phân tích cú pháp AST, cờ điều kiện và điều kiện tiên quyết trước khi lập hướng dẫn.
   - *Sự cố 2 (Lỗi thị giác hình ảnh & Đè chữ)*: AI dựng ảnh bằng code nhưng không tự xem lại ảnh, dẫn đến câu thoại đè lên textbox và nhân vật sai vị trí từ step 14 trở đi -> **Giải pháp**: Thiết lập subagent bắt buộc `walkthrough-qc-verifier` và công cụ `audit_walkthrough_qc.py` tự động bắt lỗi hình ảnh, đè text, và logic phi lý.
@@ -80,6 +83,20 @@
   - `templates/TranslationPlugin_Template/Plugin.cs`: C# BepInEx hook template.
   - `references/unity_il2cpp_hooking.md`: C# Harmony detours guide.
   - `references/tmp_font_fallback_guide.md`: TextMeshPro SDF fallback font setup.
+- `game-translator-rpgmaker/`: RPG Maker specialized engine skill (MV, MZ, VX Ace, XP).
+  - `SKILL.md`: RPG Maker translation guide and sub-skill entrypoint.
+  - `scripts/extract_rpgmaker.py`: Deep JSON parser for maps, common events, 401 code aggregation, and face/scene metadata.
+  - `scripts/build_lorebook_context.py`: Persona matrix, actor escape codes (\N[1]), multi-phase pairwise pronoun rules, and scoped glossary.
+  - `scripts/slice_rpgmaker_batches.py`: Semantic chunking, scene mood detection (H-scene/combat/drama), and sliding window context.
+  - `scripts/compile_rpgmaker_batches.py`: Merges subagent-translated batch files into translation_vietnamese.json.
+  - `scripts/inject_rpgmaker.py`: Pristine data backup, 401 Show Text code rebuild, 102 choices injection, and tag restoration.
+  - `scripts/install_wordwrap_plugin.py`: AutoWordWrap.js plugin injector & plugins.js activator.
+  - `scripts/audit_rpgmaker_coverage.py`: Quality control auditor for 100% coverage, untranslated CJK/English leaks, and tag parity.
+  - `templates/AutoWordWrap.js`: Smart auto word-wrap and auto-shrink plugin for MV/MZ.
+  - `references/rpgmaker_architecture_guide.md`: Event command codes 101, 102, 401, 405, and 2x4 face expression grid.
+  - `references/rpgmaker_escape_codes_guide.md`: RPG Maker control codes (\V[n], \N[n], \C[n], \I[n]).
+  - `references/h_scene_and_moan_rules.md`: Anti-sanitization rules for 18+, dirty talk, and moans.
+  - `references/rpgmaker_subagent_prompts.md`: Prompts and task specifications for subagents.
 - `renpy-walkthrough-guide/`: Walkthrough & Guideline generation skill for Ren'Py.
   - `SKILL.md`: Entrypoint for walkthrough and visual guide generation.
   - `scripts/analyze_renpy_routes.py`: AST decision tree & prerequisite analyzer.
@@ -101,5 +118,6 @@
   - `game-translator` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator\`
   - `game-translator-renpy` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-renpy\`
   - `game-translator-unity` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-unity\`
+  - `game-translator-rpgmaker` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-rpgmaker\`
   - `renpy-walkthrough-guide` -> `C:\Users\ADMIN\.gemini\config\skills\renpy-walkthrough-guide\`
 - **GitHub Status**: Pushed to `https://github.com/vbth7777/game-translator-skills` (branch `master`).

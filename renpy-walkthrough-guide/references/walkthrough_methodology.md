@@ -49,3 +49,4 @@ Tài liệu này đúc kết phương pháp luận từ phiên làm việc thự
 4. **Không tự kiểm tra lại hình ảnh trước khi bàn giao**:
    - Đây là nguyên nhân khiến người dùng phàn nàn nhiều nhất. AI tạo ảnh bằng code nhưng không tự đọc lại ảnh để xem có bị lỗi đè chữ, sai phông nền hay không.
    - *Quy tắc*: Bắt buộc giao cho Subagent Quality Check soi từng bức ảnh trước khi xuất báo cáo.
+
