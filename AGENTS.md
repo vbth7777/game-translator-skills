@@ -1,11 +1,13 @@
 # AGENTS.md - Game Translator Skills Project Memory & Knowledge Store
 
 ## 1. Project Overview & Mission
-- **Project**: Game Translator Skills (`game-translator-skills`)
+- **Project**: Game Translator & Walkthrough Skills (`game-translator-skills`)
 - **Location**: `d:\Development\Projects\game-translator-skills`
 - **GitHub Repository**: https://github.com/vbth7777/game-translator-skills
-- **Goal**: Build an extensible, enterprise-grade AI skill system for translating video games into Vietnamese (and other target languages) with human-grade quality, engine-specific deep hooks, and end-to-end automation via specialized subagents.
-- **Initial Engines**:
+- **Goal**: Build an extensible, enterprise-grade AI skill system for:
+  1. Translating video games into Vietnamese (and other target languages) with human-grade quality, engine-specific deep hooks, and end-to-end automation via specialized subagents.
+  2. Generating authentic, visually rich playthrough walkthroughs & guidelines with in-game screenshots and mandatory Quality Check subagent verification.
+- **Engines Supported**:
   1. **Ren'Py Engine** (Visual Novels, Ren'Py 7/8, Python 2/3, RPA archives, RPYC AST, Live2D, Python in-memory dictionaries, dynamic speech bubbles).
   2. **Unity Engine** (Mono & IL2CPP 64-bit, TextMeshPro, UGUI, BepInEx 5/6, MelonLoader, XUnity.AutoTranslator, UnityPy, AssetStudio, JSON/TSV hooks).
 
@@ -26,6 +28,8 @@
    - Transparent canvas and alpha preservation in image asset editing.
 5. **Coverage Audit Requirement**:
    - BẮT BUỘC chạy `audit_dialogue_coverage.py` trước khi báo cáo hoàn thành. Đảm bảo 100% tệp kịch bản đạt độ phủ và không có tệp nào bị lỗi định dạng (single-line escaped string).
+6. **MANDATORY WALKTHROUGH QC PROTOCOL**:
+   - BẮT BUỘC phải có Subagent Quality Check (`walkthrough-qc-verifier`) kiểm tra từng hình ảnh (chống đè chữ, tràn textbox, lệch vị trí nhân vật) và kiểm tra tính phi lý của các bước trước khi bàn giao cẩm nang hướng dẫn cho người dùng.
 
 ---
 
@@ -37,6 +41,9 @@
   - *Sự cố 2 (Sót hội thoại tiếng Anh & Lỗi intro.rpy)*: Xuất tệp `intro.rpy` bị gộp thành 1 dòng chứa escaped `\n` khiến Ren'Py bỏ qua và fallback về tiếng Anh gốc -> **Giải pháp**: Viết `audit_dialogue_coverage.py` tự động phát hiện `CORRUPTED FORMAT` và đo chính xác % dòng thoại từng file.
   - *Sự cố 3 (Dynamic Speech Bubbles & Python Lists)*: Các câu thoại ngẫu nhiên (`WOMAN_TALK`, `_emit_talk_steps`, `add_notification`) không qua lệnh `say` thông thường -> **Giải pháp**: Nâng cấp `extract_python_strings.py` quét mảng chuỗi Python và cung cấp template `dynamic_bubbles_patch.rpy` móc hàm runtime vào `renpy.translation.translate_string()`.
   - *Sự cố 4 (Khóa mã Patreon / Gallery)*: Khóa SHA256 + Salt trong `patreon_gate.rpy` cản trở kiểm tra CG/H-scenes -> **Giải pháp**: Cung cấp cẩm nang `patreon_gallery_unlock_guide.md` với kỹ thuật inject mã vạn năng (`UNLOCK`, `ALL`, `BETA`) hoặc bypass gate.
+- **Walkthrough Benchmark (Session `62e271c6-f25b-4c18-b886-b2451f3f445a`)**: `PAWGVERSE` Nami Treasure Route Walkthrough:
+  - *Sự cố 1 (Đoán mò route & Thiếu vật phẩm)*: Ban đầu thiếu bước mua Cuốc Chim ($70) tại Chợ Bazzar khiến route bị kẹt -> **Giải pháp**: Viết `analyze_renpy_routes.py` phân tích cú pháp AST, cờ điều kiện và điều kiện tiên quyết trước khi lập hướng dẫn.
+  - *Sự cố 2 (Lỗi thị giác hình ảnh & Đè chữ)*: AI dựng ảnh bằng code nhưng không tự xem lại ảnh, dẫn đến câu thoại đè lên textbox và nhân vật sai vị trí từ step 14 trở đi -> **Giải pháp**: Thiết lập subagent bắt buộc `walkthrough-qc-verifier` và công cụ `audit_walkthrough_qc.py` tự động bắt lỗi hình ảnh, đè text, và logic phi lý.
 
 ---
 
@@ -73,6 +80,14 @@
   - `templates/TranslationPlugin_Template/Plugin.cs`: C# BepInEx hook template.
   - `references/unity_il2cpp_hooking.md`: C# Harmony detours guide.
   - `references/tmp_font_fallback_guide.md`: TextMeshPro SDF fallback font setup.
+- `renpy-walkthrough-guide/`: Walkthrough & Guideline generation skill for Ren'Py.
+  - `SKILL.md`: Entrypoint for walkthrough and visual guide generation.
+  - `scripts/analyze_renpy_routes.py`: AST decision tree & prerequisite analyzer.
+  - `scripts/generate_walkthrough_screens.py`: Asset-driven in-game mockup screenshot generator.
+  - `scripts/audit_walkthrough_qc.py`: Automated visual & logic QC auditor (Health score 0-100).
+  - `scripts/export_html_walkthrough.py`: Converts markdown guide to interactive Linear-dark HTML.
+  - `references/walkthrough_methodology.md`: Playthrough methodology and lessons learned.
+  - `references/qc_subagent_rubric.md`: Quality Check Subagent rubric & inspection rules.
 - `shared/`: Shared tools across all engines.
   - `scripts/glossary_builder.py`: Multi-category glossary manager.
   - `scripts/image_supersampling_inpaint.py`: 4x supersampled UI banner/button inpainter.
@@ -86,4 +101,5 @@
   - `game-translator` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator\`
   - `game-translator-renpy` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-renpy\`
   - `game-translator-unity` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-unity\`
+  - `renpy-walkthrough-guide` -> `C:\Users\ADMIN\.gemini\config\skills\renpy-walkthrough-guide\`
 - **GitHub Status**: Pushed to `https://github.com/vbth7777/game-translator-skills` (branch `master`).

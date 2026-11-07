@@ -66,3 +66,4 @@ init 999 python:
         def _tl_log_say(speaker, line, speaker_color="#ffccff"):
             return _orig_log_say(speaker, _tl_translate_string(line), speaker_color)
         log_say = _tl_log_say
+

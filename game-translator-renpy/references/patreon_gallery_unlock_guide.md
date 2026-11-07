@@ -69,3 +69,4 @@ init 999 python:
 ```
 
 Cách này không can thiệp vào các file gốc của game, an toàn tuyệt đối khi update bản dịch và giúp người kiểm thử (tester) có thể vào thẳng mọi phân cảnh hồi tưởng/CG để rà soát lỗi dịch thuật.
+

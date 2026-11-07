@@ -54,8 +54,9 @@ flowchart TD
 ## 📂 Repository Structure
 
 - **`game-translator/`**: Master skill router, engine classifier, lore research generator, and pipeline orchestrator.
-- **`game-translator-renpy/`**: Ren'Py specialized engine skill (RPA unpacker, AST python string extractor, font tofu auditor, Vietnamese tl layer generator, and bytecode compiler).
+- **`game-translator-renpy/`**: Ren'Py specialized engine skill (RPA unpacker, AST python string extractor, font tofu auditor, Vietnamese tl layer generator, dynamic speech bubble hooks, and coverage auditor).
 - **`game-translator-unity/`**: Unity specialized engine skill (Mono vs IL2CPP profiler, batch slicer, dictionary compiler, TSV reviewer, TextMeshPro rich text linter, and BepInEx hook templates).
+- **`renpy-walkthrough-guide/`**: Authentic visual walkthrough & guideline generator (AST route decision tree mapper, asset-driven screenshot mockup composer, mandatory QC Subagent verifier, and interactive HTML exporter).
 - **`shared/`**: Universal tools (glossary builder, 4x supersampling graphic inpainter, universal QC linter, and bundled 100% Unicode Vietnamese fonts).
 
 ---
@@ -67,7 +68,7 @@ Copy the skills to your Antigravity skills directory (`~/.gemini/config/skills`)
 ```bash
 # In Windows PowerShell:
 $skillsDir = "$HOME\.gemini\config\skills"
-Copy-Item -Path "game-translator", "game-translator-renpy", "game-translator-unity" -Destination $skillsDir -Recurse -Force
+Copy-Item -Path "game-translator", "game-translator-renpy", "game-translator-unity", "renpy-walkthrough-guide" -Destination $skillsDir -Recurse -Force
 ```
 
 ---
