@@ -29,9 +29,11 @@ class RenpyStringScanner:
     def __init__(self):
         # Patterns
         self.re_screen_text = re.compile(r'^\s*(?:text|textbutton)\s+["\']([^"\']+)["\']', re.MULTILINE)
-        self.re_notify = re.compile(r'(?:renpy\.notify|long_notify)\s*\(\s*["\']([^"\']+)["\']', re.MULTILINE)
+        self.re_notify = re.compile(r'(?:renpy\.notify|long_notify|add_notification)\s*\(\s*["\']([^"\']+)["\']', re.MULTILINE)
         self.re_menu_choice = re.compile(r'^\s*["\']([^"\']+)["\']\s*:\s*$', re.MULTILINE)
         self.re_dict_str_val = re.compile(r'["\']([A-Za-z0-9_\-\.\s]{2,100})["\']\s*:\s*["\']([^"\']+)["\']')
+        self.re_list_str_item = re.compile(r'^\s*["\']([A-Z0-9a-z][^"\']{3,})["\']\s*,?\s*(?:#.*)?$', re.MULTILINE)
+        self.re_tuple_step = re.compile(r'\(\s*["\'][a-zA-Z0-9_]+["\']\s*,\s*["\']([^"\']{3,})["\']\s*\)')
         self.re_dialogue_say = re.compile(r'^\s*(?:([a-zA-Z0-9_]+)\s+)?["\']([^"\']{2,})["\']\s*$', re.MULTILINE)
 
     def is_translatable(self, text: str) -> bool:
@@ -88,7 +90,19 @@ class RenpyStringScanner:
             if self.is_translatable(k) and self.is_translatable(v):
                 results["dictionary_entries"].append({"key": k, "value": v, "file": file_path.name})
 
-        # 5. Dialogue says
+        # 5. List items and Speech Bubble arrays (in python/init blocks)
+        for match in self.re_list_str_item.finditer(content):
+            t = match.group(1).strip()
+            if self.is_translatable(t):
+                results["dictionary_entries"].append({"key": t, "value": t, "file": file_path.name})
+
+        # 6. Tuple steps (e.g. ("speech", "text..."))
+        for match in self.re_tuple_step.finditer(content):
+            t = match.group(1).strip()
+            if self.is_translatable(t):
+                results["dictionary_entries"].append({"key": t, "value": t, "file": file_path.name})
+
+        # 7. Dialogue says
         for match in self.re_dialogue_say.finditer(content):
             speaker = match.group(1) or ""
             text = match.group(2).strip()

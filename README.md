@@ -105,3 +105,4 @@ python game-translator-unity/scripts/verify_unity_rich_text.py "D:/Games/UnityGa
 ## 📜 License
 
 MIT License. Crafted with precision for high-caliber game localization.
+

@@ -51,17 +51,20 @@ python game-translator/scripts/search_game_lore.py "<GAME_TITLE>" --out "<GAME_D
 
 ---
 
-## 4. Step 3: Subagent Orchestration Matrix
+## 4. Step 3: Subagent Orchestration & Mandatory Execution Protocol
 
-Deploy modular subagents following the guidelines in [subagent_prompts.md](file:///d:/Development/Projects/game-translator-skills/game-translator/references/subagent_prompts.md):
+> [!IMPORTANT]
+> **MANDATORY SUBAGENT PROTOCOL (BẮT BUỘC SỬ DỤNG SUBAGENTS)**:
+> Tuyệt đối **KHÔNG ĐƯỢC** tự dịch tuần tự (single-threaded) toàn bộ game trong một luồng chat chính nếu dự án có trên 100 câu thoại hoặc nhiều tệp kịch bản.
+> Agent điều phối **BẮT BUỘC PHẢI GỌI `invoke_subagent`** để phân công nhiệm vụ song song cho các subagents chuyên biệt theo ma trận:
 
-1. **`game-lore-researcher`**: Populates `LORE_CONTEXT.json`.
-2. **`game-string-extractor`**: Extracts strings into classified JSON / TSV files.
-3. **`game-glossary-curator`**: Locks proper nouns, item names, and skill terms.
-4. **`game-chunk-translator`**: Translates batches of 200–500 dialogue entries in parallel.
-5. **`game-qc-linter`**: Audits tag preservation, rich text tokens, and unescaped symbols.
-6. **`game-asset-localizer`**: Inpaints and redraws UI texture banners at 4x supersampling.
-7. **`game-engine-packer`**: Re-compiles bytecode, verifies font Unicode coverage, and tests launch.
+1. **`game-lore-researcher`**: Khởi chạy subagent nghiên cứu web/wiki và thiết lập `LORE_CONTEXT.json`.
+2. **`game-string-extractor`**: Bóc tách toàn bộ tài nguyên (kịch bản + chuỗi dynamic Python/speech bubbles).
+3. **`game-glossary-curator`**: Tổng hợp và khóa danh từ riêng, thuật ngữ trong `GLOSSARY.json`.
+4. **`game-chunk-translator` (Pool Worker song song)**: Chia nhỏ văn bản thành các batch 200–500 câu và gọi các subagent dịch song song đồng thời.
+5. **`game-qc-linter`**: Chạy tự động kiểm tra tag parity, placeholder, và dò câu sót tiếng Anh.
+6. **`game-asset-localizer`**: Xử lý đồ họa, inpainting và supersampling 4x.
+7. **`game-engine-packer`**: Đóng gói, fix font tofu, compile và chạy kiểm tra độ phủ (`audit_dialogue_coverage.py`).
 
 ---
 
