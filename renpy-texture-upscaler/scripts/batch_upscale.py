@@ -46,7 +46,8 @@ def run_batch_upscale(
     high_dpi=False,
     device_id=0,
     workspace_dir='upscale_workspace',
-    deploy_live=True
+    deploy_live=True,
+    force_lowres_ssaa=False
 ):
     game_path = Path(game_dir).resolve()
     actual_game_dir = game_path / 'game' if (game_path / 'game').exists() else game_path
@@ -139,14 +140,28 @@ def run_batch_upscale(
             print(f"  Error: Failed to read image file: {src_path}")
             continue
 
-        # Execution Strategy Selection
-        if is_live2d or high_dpi:
-            # Path A: Native Super-Resolution (keep full upscaled size)
+        # Execution Strategy Selection with 1080p Resolution Guardrail
+        min_dim = min(orig_w, orig_h)
+        if is_live2d:
+            # Path A: Live2D Normalized UV coordinates [0.0, 1.0] never zoom in. Safe for 4K.
             target_size = None
             out_img = upscaler.enhance(img, outscale=scale_factor)
-            strategy_used = 'live2d_native_super_resolution' if is_live2d else 'high_dpi_native'
+            strategy_used = 'live2d_native_super_resolution'
+        elif high_dpi or (min_dim < 1080 and not force_lowres_ssaa):
+            # Path B1: Low-res static image (< 1080p, e.g. 816x624, 720p, 480p) OR explicit --high-dpi
+            # GUARDRAIL: Do NOT downsample with SSAA Lanczos to < 1080p, as it destroys anti-aliasing gradients
+            # and causes harsh pixel staircasing / rỗ bug (lesson learned from RPG Maker MV 816x624).
+            target_size = None
+            out_img = upscaler.enhance(img, outscale=scale_factor)
+            if min_dim < 1080 and not high_dpi:
+                strategy_used = 'guardrail_native_high_dpi_under_1080p'
+                print(f"  [GUARDRAIL] Original {orig_w}x{orig_h} < 1080p threshold.")
+                print(f"              Enforcing Native 2x ({out_img.shape[1]}x{out_img.shape[0]}) to prevent SSAA pixelation/rỗ!")
+            else:
+                strategy_used = 'high_dpi_native'
         else:
-            # Path B: SSAA Lanczos Resampling for Static 2D (prevents 2x screen overflow/zooming)
+            # Path B2: High-res static image (>= 1080p, e.g. Full HD 1920x1080, Bust 1920x2511)
+            # SSAA Lanczos downsampling is safe, pristine, and prevents 2x layout overflow bug.
             target_size = (orig_w, orig_h)
             out_img = upscaler.enhance(img, outscale=scale_factor, target_size=target_size)
             strategy_used = 'ssaa_lanczos_resampling'
@@ -200,6 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('--model-path', default=None, help="Path to Real-ESRGAN ONNX weights")
     parser.add_argument('--category', default='all', choices=['all', 'live2d', 'static', 'cg', 'bust', 'wallpaper_or_bg', 'ui_or_thumb', 'missing'])
     parser.add_argument('--high-dpi', action='store_true', help="Retain 2x/4x dimensions for static images instead of SSAA downsampling")
+    parser.add_argument('--force-lowres-ssaa', action='store_true', help="Bypass the 1080p guardrail and force SSAA downsampling even on < 1080p images (Warning: causes pixelation/rỗ)")
     parser.add_argument('--device-id', type=int, default=0, help="DirectML / GPU Device ID")
     parser.add_argument('--workspace', default='upscale_workspace', help="Workspace cache directory")
     parser.add_argument('--no-deploy', action='store_true', help="Do not write directly to game/ folder")
@@ -213,5 +229,7 @@ if __name__ == '__main__':
         high_dpi=args.high_dpi,
         device_id=args.device_id,
         workspace_dir=args.workspace,
-        deploy_live=(not args.no_deploy)
+        deploy_live=(not args.no_deploy),
+        force_lowres_ssaa=args.force_lowres_ssaa
     )
+

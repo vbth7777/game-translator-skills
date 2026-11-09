@@ -70,3 +70,40 @@ To gain all the benefits of AI super-resolution (denoising, vector-sharp edge re
 Lanczos filtering computes output pixel intensities using a sinc-based windowed kernel:
 $$L(x) = \begin{cases} \text{sinc}(x) \cdot \text{sinc}(x / a) & \text{if } -a < x < a \\ 0 & \text{otherwise} \end{cases}$$
 where $a = 4$ for Lanczos-4. Downsampling from an AI-denoised 4K canvas using Lanczos-4 retains the high-frequency edge enhancements of the neural network while ensuring 100% pixel layout parity.
+
+---
+
+## 5. The 1080p Resolution Threshold Guardrail (Preventing the SSAA "Rỗ" / Pixelation Trap)
+
+### A. The Signal Processing Reality: Why Low-Res SSAA Fails
+During research across game engines (Benchmark RPG Maker session `67fa5fe0-f3de-4b0a-a15c-5823adf81816` vs Ren'Py PAWGVERSE session `9dee8b12-0526-4f6b-b4cc-ccee0219a338`), a critical boundary condition was uncovered:
+
+> [!CAUTION]
+> **SSAA Downsampling is strictly bounded by the Nyquist-Shannon sampling theorem and the canvas pixel budget:**
+> - When an AI super-resolution model reconstructs an image, it sharpens lineart into ultra-high-frequency, vector-thin edges (often $< 1.0$ pixel wide in relative coordinate space).
+> - **In Low-Resolution Canvases ($< 1080p$, e.g., $816 \times 624$ or $720p$)**:
+>   - There simply are **not enough physical pixels** across a character's eye, eyelash, or hair strands to represent a smooth subpixel transition gradient (anti-aliasing band).
+>   - Lanczos downsampling forcibly clamps the high-contrast thin lines into single discrete pixels without soft transitional borders.
+>   - **Visual Result**: Curved anime lines collapse into harsh 1-pixel staircases (aliased steps), completely ruining the illustration and making it look like a 16-bit retro pixelated game ("bị rỗ / vỡ nét").
+> - **In High-Resolution Canvases ($\ge 1080p$, e.g., Full HD $1920 \times 1080$ or Bust $1920 \times 2511$)**:
+>   - The pixel budget is 4x to 10x denser (2.07M to 4.8M pixels).
+>   - Lanczos-4 generates smooth 2-to-4 pixel wide multi-shade gradient fringes around lines.
+>   - **Visual Result**: Pristine, filmic, vector-sharp lines without a single jagged staircase pixel.
+
+### B. Summary of the Dual Threshold Architecture:
+```
+                      [Target Static 2D Asset]
+                                 │
+                Is Native Resolution >= 1080p?
+                                 │
+                ┌────────────────┴────────────────┐
+               YES                               NO (< 1080p)
+                │                                 │
+                ▼                                 ▼
+       [SSAA Lanczos Mode]             [Guardrail Native 2x Mode]
+  - AI 2x/4x Super-Resolution     - Keep Native 2x (No SSAA downscale)
+  - Lanczos downsample to 1080p   - Zero pixelation staircasing (No "rỗ")
+  - 100% layout fit (no 2x zoom)  - Use Ren'Py Transform(zoom=0.5) or
+  - Pristine anti-aliasing        - Use renpy_hd_override.rpy
+```
+

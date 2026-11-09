@@ -66,3 +66,4 @@ out_alpha_u8 = (np.clip(out_alpha, 0.0, 1.0) * 255.0).round().astype(np.uint8)
 
 pristine_rgba = np.dstack([out_bgr_u8, out_alpha_u8])
 ```
+

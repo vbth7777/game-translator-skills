@@ -195,3 +195,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     repack_rpa_archive(args.game_dir, args.archive, args.status, args.clean_loose)
+

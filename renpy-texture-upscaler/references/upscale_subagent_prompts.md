@@ -62,3 +62,4 @@ Your objective:
 5. Run `python scripts/generate_comparison_catalog.py` to create side-by-side Before/After markdown and HTML catalogs.
 6. Ensure that not a single texture in the game is missed or forgotten.
 ```
+

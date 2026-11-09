@@ -87,48 +87,48 @@ def classify_asset(rel_path, width, height):
             scale = 2  # 1024x1024 -> 2048x2048 or 1024x2048 -> 2048x4096
             mode = 'live2d_native_4k'
         target_size = [width * scale, height * scale]
-
-    elif any(k in rel_lower for k in ['/cg/', '/cgs/', 'event_']):
-        category = 'cg'
-        is_low_res = True
-        scale = 2
-        mode = 'ssaa_lanczos' # AI 2x/4x denoise + Lanczos resample back to (width, height)
-        target_size = [width, height]
-
-    elif any(k in rel_lower for k in ['/bust/', '/busts/', '/portraits/', '/sprites/']):
-        category = 'bust'
-        is_low_res = True
-        scale = 2
-        mode = 'ssaa_lanczos'
-        target_size = [width, height]
-
-    elif any(k in rel_lower for k in ['/bg/', '/backgrounds/', 'main_menu', 'title', 'wallpaper', 'splash']):
-        category = 'wallpaper_or_bg'
-        is_low_res = True
-        scale = 2
-        mode = 'ssaa_lanczos'
-        target_size = [width, height]
-
-    elif any(k in rel_lower for k in ['/gui/', '/assets/', 'thumb', 'icon', 'button']):
-        category = 'ui_or_thumb'
-        is_low_res = (max_dim <= 1024)
-        scale = 2
-        mode = 'ssaa_lanczos'
-        target_size = [width, height]
+        note = "Live2D atlas: Normalized UV coords [0.0, 1.0] safe for native 4K scaling without zoom bug."
 
     else:
-        category = 'misc_static'
-        is_low_res = (max_dim <= 2048)
+        # Static 2D Asset Category Selection
+        if any(k in rel_lower for k in ['/cg/', '/cgs/', 'event_']):
+            category = 'cg'
+            is_low_res = True
+        elif any(k in rel_lower for k in ['/bust/', '/busts/', '/portraits/', '/sprites/']):
+            category = 'bust'
+            is_low_res = True
+        elif any(k in rel_lower for k in ['/bg/', '/backgrounds/', 'main_menu', 'title', 'wallpaper', 'splash']):
+            category = 'wallpaper_or_bg'
+            is_low_res = True
+        elif any(k in rel_lower for k in ['/gui/', '/assets/', 'thumb', 'icon', 'button']):
+            category = 'ui_or_thumb'
+            is_low_res = (max_dim <= 1024)
+        else:
+            category = 'misc_static'
+            is_low_res = (max_dim <= 2048)
+
+        # 1080p Resolution Threshold Guardrail (Preventing the SSAA Pixelation/Rỗ Bug)
         scale = 2
-        mode = 'ssaa_lanczos'
-        target_size = [width, height]
+        if min_dim < 1080:
+            # Low-res static image (< 1080p, e.g. 816x624, 720p, 480p)
+            # CRITICAL: SSAA downsampling to < 1080p destroys subpixel anti-aliasing gradients and causes harsh staircasing / rỗ!
+            mode = 'native_high_dpi'
+            target_size = [width * scale, height * scale]
+            note = "GUARDRAIL ACTIVATED: Original resolution < 1080p. Retaining Native 2x to prevent SSAA pixelation/rỗ. Use renpy_hd_override.rpy or Transform(zoom=0.5) for engine scaling."
+        else:
+            # High-res static image (>= 1080p, e.g. Full HD 1920x1080 or Bust 1920x2511)
+            # SSAA Lanczos downsampling is safe and achieves true super-sampled anti-aliasing without layout overflow.
+            mode = 'ssaa_lanczos'
+            target_size = [width, height]
+            note = "Original resolution >= 1080p. SSAA Lanczos downsampling safe for 100% layout fit with zero zoom bug."
 
     return {
         'category': category,
         'is_low_res': is_low_res,
         'recommended_scale': scale,
         'mode': mode,
-        'target_size': target_size
+        'target_size': target_size,
+        'note': note
     }
 
 def scan_game_assets(game_dir, output_dir='backup_textures'):
@@ -257,3 +257,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     scan_game_assets(args.game_dir, args.output_dir)
+

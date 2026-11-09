@@ -176,3 +176,4 @@ if __name__ == '__main__':
     test_img[:, :, 2] = 255 # R
     test_img[:, :, 3] = 255 # Alpha
     print("Test image created: shape =", test_img.shape)
+

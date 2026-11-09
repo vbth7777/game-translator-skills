@@ -37,6 +37,12 @@ Quy trình nâng cấp đồ họa, làm nét texture và Live2D tự động ch
 - Trong giai đoạn thử nghiệm, chỉ cần ghi đè file upscaled vào `game/<rel_path>` để kiểm tra ngay lập tức mà không cần giải nén file RPA 1 GB.
 - Sau khi kiểm tra hoàn tất, dùng `repack_archive.py` để đóng gói hàng loạt vào RPA và dọn dẹp các tệp rời.
 
+### 🌟 Bài học 6: Quy Tắc Ngưỡng 1080p (Chống Hiện Tượng Rỗ Hạt / Hóa Thành Pixel Game Do SSAA)
+- **Bài học xương máu từ RPG Maker MV (`67fa5fe0`)**: Khi áp dụng SSAA thu nhỏ ảnh từ 4K về lại độ phân giải ban đầu, nếu ảnh gốc có kích thước quá nhỏ ($< 1080p$, ví dụ $816 \times 624$ hay $720p$/$480p$), khung hình không có đủ mật độ điểm ảnh để biểu diễn dải chuyển tiếp (anti-aliasing gradient). Thuật toán Lanczos sẽ ép nét vẽ vector thành các bậc thang vuông 1-pixel thô kệch, khiến tranh anime biến thành game retro 16-bit ("bị rỗ hạt / mất hình thù").
+- **Ngưỡng an toàn tuyệt đối**:
+  1. **Ảnh tĩnh $\ge 1080p$ (như trong Ren'Py PAWGVERSE $1920 \times 1080$, $1920 \times 2511$)**: Áp dụng SSAA Lanczos downsampling là hoàn hảo nhất, triệt tiêu 100% răng cưa và vừa khít layout.
+  2. **Ảnh tĩnh $< 1080p$**: **Kích hoạt Guardrail tự động**: BẮT BUỘC giữ nguyên Native 2x (không được thu nhỏ bằng SSAA) để bảo toàn nét vẽ mịn màng, đồng thời dùng template `templates/renpy_hd_override.rpy` hoặc `Transform(zoom=0.5)` để Ren'Py tự scale bằng phần cứng khi hiển thị.
+
 ---
 
 ## 2. Giao Thức Phân Chia Subagent Bắt Buộc (Mandatory Subagents)
@@ -123,6 +129,8 @@ python scripts/repack_archive.py --game-dir "D:/Games/MyRenPyGame" --archive arc
 ## 5. Tiêu Chuẩn Nghiệm Thu Kỹ Thuật (Quality Checklist)
 - [ ] **100% Độ phủ (Zero Missing Textures)**: Không bỏ sót bất kỳ model Live2D chiến đấu, model phụ, multi-sheet texture (`texture_01.png`), hoặc ảnh nền nào.
 - [ ] **Zero 2x Zoom Bug**: Mọi ảnh tĩnh (UI, logo, wallpaper menu, CG) hiển thị vừa vặn hoàn hảo trên viewport, không bị phóng to hay cắt mép.
+- [ ] **1080p SSAA Guardrail Enforcement**: Tuyệt đối không ép thu nhỏ bằng SSAA trên ảnh $< 1080p$ để ngăn ngừa triệt để lỗi rỗ nét / biến thành pixel game.
 - [ ] **Khử Viền Alpha (Zero Halo)**: Độ trong suốt quanh rìa nhân vật mềm mại, không có viền đen hoặc vạch răng cưa.
 - [ ] **Ren'Py Lint Exit Code 0**: Engine Ren'Py nạp dữ liệu hoàn hảo, không có cảnh báo xung đột transform hoặc thiếu file.
 - [ ] **Bản sao lưu nguyên vẹn**: Luôn duy trì `archive.rpa.original_backup` và thư mục `backup_textures/original_textures/`.
+

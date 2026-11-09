@@ -77,7 +77,10 @@ def audit_upscale_quality(game_dir, manifest_path='backup_textures/manifest.json
                 # 1. Zoom Overflow Check for Static 2D
                 if not is_live2d:
                     strategy = st_entry.get('strategy', '')
-                    if strategy != 'high_dpi_native' and (w, h) != (orig_w, orig_h):
+                    min_orig = min(orig_w, orig_h)
+                    # If >= 1080p, it should be SSAA downsampled to match layout (orig_w, orig_h).
+                    # If < 1080p, it is protected by the 1080p guardrail and retains native 2x.
+                    if strategy not in ['high_dpi_native', 'guardrail_native_high_dpi_under_1080p'] and min_orig >= 1080 and (w, h) != (orig_w, orig_h):
                         zoom_overflow_risks.append({
                             'path': rel_path,
                             'orig': [orig_w, orig_h],
@@ -179,3 +182,4 @@ if __name__ == '__main__':
 
     success = audit_upscale_quality(args.game_dir, args.manifest, args.status)
     sys.exit(0 if success else 1)
+

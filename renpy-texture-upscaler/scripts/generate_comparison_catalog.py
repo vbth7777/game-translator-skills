@@ -145,3 +145,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     generate_catalog(args.status, args.backup_dir, args.out_dir)
+

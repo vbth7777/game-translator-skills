@@ -60,3 +60,4 @@ To eliminate tile boundary seams:
    $$\text{crop}_{y1} = \text{crop}_{y0} + (\min(H, y + \text{step}) - y) \times \text{scale}$$
 5. Place the cropped region into the master canvas.
 6. **Result**: 100% continuous, seamless upscaling with flat VRAM usage under 1.5 GB.
+
