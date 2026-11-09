@@ -53,6 +53,11 @@
   - *Sự cố 3 (Lem viền đen / Mất độ trong suốt Alpha)*: Mạng nơ-ron RGB thông thường làm hỏng kênh trong suốt của sprite nhân vật -> **Giải pháp**: Áp dụng xử lý song song Dual-Plane: Tách kênh Alpha thành mặt phẳng 3 kênh, chạy qua AI và tái tổ hợp RGBA 32-bit, triệt tiêu hoàn toàn viền đen (zero halo).
   - *Sự cố 4 (Sót texture do heuristic sai)*: Ban đầu chỉ quét thư mục `.1024` khiến sót các model đa tầng (`texture_01.png`), wallpaper biến thể (`splash_nobara_w`), và CG buồng giam -> **Giải pháp**: Viết `scan_and_manifest.py` quét toàn diện cả loose files và gói `archive.rpa`, duy trì `manifest.json` và `status.json` nguyên tử.
   - *Sự cố 5 (Quy tắc ngưỡng 1080p chống rỗ hạt SSAA - Đối chiếu với RPG Maker `67fa5fe0`)*: Ở RPG Maker độ phân giải gốc nhỏ ($816 \times 624$), thu nhỏ bằng SSAA làm mất dải màu chuyển tiếp (anti-aliasing) và biến tranh thành pixel game 16-bit thô ráp. Ngược lại, ở Ren'Py PAWGVERSE gốc Full HD ($1920 \times 1080$ và $1920 \times 2511$), mật độ pixel đủ lớn giúp SSAA Lanczos đạt độ khử răng cưa mượt mà tuyệt đối -> **Giải pháp**: Thiết lập **1080p Resolution Guardrail**: Ảnh tĩnh $< 1080p$ cấm ép thu nhỏ SSAA mà giữ nguyên Native 2x + hook scale; Ảnh tĩnh $\ge 1080p$ áp dụng SSAA Lanczos an toàn 100%.
+- **RPG Maker Texture Upscale Benchmark (Session `67fa5fe0-f3de-4b0a-a15c-5823adf81816`)**: `NTRPG Priestess` (RPG Maker MV, `.rpgmvp` encrypted assets, 816x624 canvas, 2x Native Super-Resolution, PixiJS WebGL High-DPI hook):
+  - *Sự cố 1 (Thảm họa SSAA thu nhỏ trên canvas nhỏ 816x624)*: AI upscale rồi dùng Lanczos ép về 816px làm triệt tiêu dải màu chuyển tiếp, biến tranh vẽ anime thành bậc thang pixel 1-pixel vuông vức như game retro 16-bit -> **Giải pháp**: Thiết lập quy tắc cấm dùng SSAA trên canvas $< 1080p$, chuyển 100% sang Native 2x ($1632 \times 1248$).
+  - *Sự cố 2 (Phóng to 200% ngoài tầm kiểm soát trong Sprite_Picture)*: Giữ ảnh 2x khiến game hiển thị tranh tràn ra ngoài viewport -> **Giải pháp**: Viết plugin `HD_Texture_Scale.js` can thiệp vào `Graphics._createRenderer` (kích hoạt WebGL resolution 2.0 High-DPI buffer), hook `Sprite_Picture` (tự động co tỷ lệ 0.5x cho ảnh $> 1000px$) và ép `PIXI.SCALE_MODES.LINEAR`.
+  - *Sự cố 3 (Mã hóa .rpgmvp và giải mã tự động)*: Tệp đồ họa bị khóa bởi XOR mask 16-byte -> **Giải pháp**: Viết `rpgmv_crypto.py` tự động đọc key từ `System.json`, giải mã trong RAM, upscale và tái mã hóa lại thành `.rpgmvp` chuẩn xác.
+  - *Sự cố 4 (Khôi phục khẩn cấp 1-click)*: Cần cơ chế hoàn nguyên ngay lập tức khi phát hiện lỗi thị giác -> **Giải pháp**: Cung cấp `restore_backup.py` khôi phục 100% tài nguyên gốc trong 5 giây.
 
 ---
 
@@ -124,6 +129,20 @@
   - `references/directml_gpu_acceleration.md`: DirectML GPU acceleration and tiled inference guide.
   - `references/alpha_transparency_preservation.md`: 4-channel alpha transparency preservation guide.
   - `references/upscale_subagent_prompts.md`: Prompts and task specifications for upscaling subagents.
+- `rpgmaker-texture-upscaler/`: AI-powered texture and graphic upscaler for RPG Maker MV/MZ.
+  - `SKILL.md`: Entrypoint for RPG Maker texture upscaling pipeline.
+  - `scripts/rpgmv_crypto.py`: In-memory .rpgmvp encryption/decryption engine with System.json key.
+  - `scripts/scan_and_manifest.py`: Asset auditor across pictures, faces, characters, tilesets, animations.
+  - `scripts/batch_upscale.py`: DirectML GPU batch engine with Native 2x Super-Resolution.
+  - `scripts/install_hd_plugin.py`: Auto-installer for HD_Texture_Scale.js PixiJS High-DPI plugin.
+  - `scripts/audit_upscale_qc.py`: Header integrity, 2x dimension parity, and SSAA risk auditor.
+  - `scripts/restore_backup.py`: 1-Click safety rollback engine.
+  - `scripts/generate_comparison_catalog.py`: Side-by-side Before/After visual comparison generator.
+  - `templates/HD_Texture_Scale.js`: PixiJS WebGL resolution 2.0 and Sprite_Picture/drawFace auto-scaler.
+  - `references/the_ssaa_rỗ_lesson.md`: Technical post-mortem on the 816x624 SSAA pixelation disaster.
+  - `references/rpgmvp_encryption_guide.md`: 16-byte header signature & XOR mask specification.
+  - `references/rpgmaker_asset_architecture.md`: Folder breakdown and grid dimension rules.
+  - `references/upscale_subagent_prompts.md`: Prompts for RPG Maker texture subagents.
 - `shared/`: Shared tools across all engines.
   - `scripts/glossary_builder.py`: Multi-category glossary manager.
   - `scripts/image_supersampling_inpaint.py`: 4x supersampled UI banner/button inpainter.
@@ -140,4 +159,5 @@
   - `game-translator-rpgmaker` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-rpgmaker\`
   - `renpy-walkthrough-guide` -> `C:\Users\ADMIN\.gemini\config\skills\renpy-walkthrough-guide\`
   - `renpy-texture-upscaler` -> `C:\Users\ADMIN\.gemini\config\skills\renpy-texture-upscaler\`
+  - `rpgmaker-texture-upscaler` -> `C:\Users\ADMIN\.gemini\config\skills\rpgmaker-texture-upscaler\`
 - **GitHub Status**: Pushed to `https://github.com/vbth7777/game-translator-skills` (branch `master`).
