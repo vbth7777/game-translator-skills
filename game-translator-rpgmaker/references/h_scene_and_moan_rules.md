@@ -45,3 +45,4 @@ Relationships in RPGs evolve dynamically (e.g. heroines undergoing corruption, m
 - **Phase 2 (Corrupted / Hostile / Dark)**: `ta - ngươi`, `tao - mày`, or degrading terms (`con hầu`, `đồ tiện tì`).
 - **Phase 3 (True Lovers / Submissive)**: `chàng - thiếp` or affectionate `em - anh`.
 Always check the `active_context` in the batch file before translating to apply the correct active phase!
+

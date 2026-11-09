@@ -50,3 +50,4 @@ Many RPG Maker games use advanced message plugins that define custom chevron tag
 - `<Target: All>`: Thiết lập mục tiêu kỹ năng.
 
 **BẮT BUỘC**: Tất cả thẻ `<...>` phải được giữ nguyên vị trí và định dạng. Không bao giờ dịch nội dung bên trong cặp dấu `< >`.
+

@@ -140,3 +140,4 @@ python game-translator-rpgmaker/scripts/audit_rpgmaker_coverage.py "<GAME_DIR>/t
 - [rpgmaker_escape_codes_guide.md](file:///d:/Development/Projects/game-translator-skills/game-translator-rpgmaker/references/rpgmaker_escape_codes_guide.md): Bảng tra cứu toàn diện các mã điều khiển trong hộp thoại.
 - [h_scene_and_moan_rules.md](file:///d:/Development/Projects/game-translator-skills/game-translator-rpgmaker/references/h_scene_and_moan_rules.md): Quy tắc dịch phân cảnh 18+, dirty talk, tiếng rên rỉ (moan) và âm thanh bú mút theo chuẩn Anti-Sanitization.
 - [rpgmaker_subagent_prompts.md](file:///d:/Development/Projects/game-translator-skills/game-translator-rpgmaker/references/rpgmaker_subagent_prompts.md): Prompts mẫu chuẩn xác cho các subagents điều phối.
+

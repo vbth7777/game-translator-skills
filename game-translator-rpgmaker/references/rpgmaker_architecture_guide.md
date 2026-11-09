@@ -89,3 +89,4 @@ RPG Maker face sheets typically arrange 8 facial expressions in a **2x4 grid** (
   * Face File: `Alice_face` -> Cleaned character name: `Alice`.
   * Index: `5` -> Blushing / Shy / Aroused expression.
 - The `slice_rpgmaker_batches.py` script automatically surfaces this expression context to the translator so the dialogue tone matches the character's facial expression 100%!
+

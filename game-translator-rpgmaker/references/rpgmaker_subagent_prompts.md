@@ -88,3 +88,4 @@ Nhiệm vụ của bạn:
    python game-translator-rpgmaker/scripts/install_wordwrap_plugin.py "<GAME_DIR>"
 3. Khởi chạy kiểm tra toàn bộ cấu trúc file JSON, xác nhận game sẵn sàng để người dùng trải nghiệm mượt mà.
 ```
+

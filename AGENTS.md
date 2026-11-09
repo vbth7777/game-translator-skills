@@ -47,6 +47,11 @@
 - **Walkthrough Benchmark (Session `62e271c6-f25b-4c18-b886-b2451f3f445a`)**: `PAWGVERSE` Nami Treasure Route Walkthrough:
   - *Sự cố 1 (Đoán mò route & Thiếu vật phẩm)*: Ban đầu thiếu bước mua Cuốc Chim ($70) tại Chợ Bazzar khiến route bị kẹt -> **Giải pháp**: Viết `analyze_renpy_routes.py` phân tích cú pháp AST, cờ điều kiện và điều kiện tiên quyết trước khi lập hướng dẫn.
   - *Sự cố 2 (Lỗi thị giác hình ảnh & Đè chữ)*: AI dựng ảnh bằng code nhưng không tự xem lại ảnh, dẫn đến câu thoại đè lên textbox và nhân vật sai vị trí từ step 14 trở đi -> **Giải pháp**: Thiết lập subagent bắt buộc `walkthrough-qc-verifier` và công cụ `audit_walkthrough_qc.py` tự động bắt lỗi hình ảnh, đè text, và logic phi lý.
+- **Ren'Py Texture & Live2D Upscale Benchmark (Session `9dee8b12-0526-4f6b-b4cc-ccee0219a338`)**: `PAWGVERSE` 4K Texture Remastering (191 textures, 46 Live2D models, 134 static CGs/busts/wallpapers):
+  - *Sự cố 1 (Bẫy phóng to 2x trên ảnh tĩnh & vỡ giao diện)*: Upscale trực tiếp ảnh tĩnh (Title logo `title_d.png`, wallpaper, CG) lên 4K khiến Ren'Py hiển thị phóng đại 200% và tràn ra ngoài mép màn hình do cơ chế pixel 1:1 -> **Giải pháp**: Thiết lập Chiến Lược Kép (Dual-Path Strategy). Live2D giữ nguyên 4K Native Super-Resolution (do dùng tọa độ UV $[0.0, 1.0]$); Ảnh tĩnh (Static 2D) áp dụng Super-Sampled Anti-Aliasing (SSAA) dùng thuật toán Lanczos-4 thu nhỏ về đúng kích thước tọa độ gốc ($1920 \times 1080$), vừa giữ nét vẽ vector khử nhiễu vừa khít 100% layout.
+  - *Sự cố 2 (Driver GPU & CUDA Hell trên Windows)*: Môi trường PyTorch CPU hoặc thiếu driver CUDA làm nghẽn tiến độ -> **Giải pháp**: Xuất Real-ESRGAN sang ONNX với trục động (`dynamic_axes`) và kích hoạt **DirectML (`DmlExecutionProvider`)** trên card rời NVIDIA GeForce RTX 5070 Laptop GPU, tăng tốc từ 5-10 phút/ảnh xuống chỉ 6-15 giây/ảnh.
+  - *Sự cố 3 (Lem viền đen / Mất độ trong suốt Alpha)*: Mạng nơ-ron RGB thông thường làm hỏng kênh trong suốt của sprite nhân vật -> **Giải pháp**: Áp dụng xử lý song song Dual-Plane: Tách kênh Alpha thành mặt phẳng 3 kênh, chạy qua AI và tái tổ hợp RGBA 32-bit, triệt tiêu hoàn toàn viền đen (zero halo).
+  - *Sự cố 4 (Sót texture do heuristic sai)*: Ban đầu chỉ quét thư mục `.1024` khiến sót các model đa tầng (`texture_01.png`), wallpaper biến thể (`splash_nobara_w`), và CG buồng giam -> **Giải pháp**: Viết `scan_and_manifest.py` quét toàn diện cả loose files và gói `archive.rpa`, duy trì `manifest.json` và `status.json` nguyên tử.
 
 ---
 
@@ -105,6 +110,19 @@
   - `scripts/export_html_walkthrough.py`: Converts markdown guide to interactive Linear-dark HTML.
   - `references/walkthrough_methodology.md`: Playthrough methodology and lessons learned.
   - `references/qc_subagent_rubric.md`: Quality Check Subagent rubric & inspection rules.
+- `renpy-texture-upscaler/`: AI-powered texture and visual asset upscaler for Ren'Py.
+  - `SKILL.md`: Entrypoint for Ren'Py texture & Live2D upscaling pipeline.
+  - `scripts/scan_and_manifest.py`: Asset discovery & classifier (Live2D vs Static 2D) for loose and RPA files.
+  - `scripts/gpu_upscaler.py`: DirectML + ONNX Real-ESRGAN engine with dual-plane alpha preservation and tiling.
+  - `scripts/batch_upscale.py`: Master GPU batch runner with Dual-Path Strategy (Live2D 4K vs Static SSAA Lanczos).
+  - `scripts/repack_archive.py`: Streaming RPA 3.0/2.0 packer with original backup and atomic swap.
+  - `scripts/audit_upscale_qc.py`: Automated QC auditor (100% coverage, 2x zoom bug check, alpha halos).
+  - `scripts/generate_comparison_catalog.py`: Side-by-side Before/After visual comparison generator.
+  - `templates/renpy_hd_override.rpy`: Ren'Py template for HD cache expansion and dynamic scaling.
+  - `references/live2d_vs_static_upscale_guide.md`: Normalized UVs vs screen pixel coordinates guide.
+  - `references/directml_gpu_acceleration.md`: DirectML GPU acceleration and tiled inference guide.
+  - `references/alpha_transparency_preservation.md`: 4-channel alpha transparency preservation guide.
+  - `references/upscale_subagent_prompts.md`: Prompts and task specifications for upscaling subagents.
 - `shared/`: Shared tools across all engines.
   - `scripts/glossary_builder.py`: Multi-category glossary manager.
   - `scripts/image_supersampling_inpaint.py`: 4x supersampled UI banner/button inpainter.
@@ -120,4 +138,5 @@
   - `game-translator-unity` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-unity\`
   - `game-translator-rpgmaker` -> `C:\Users\ADMIN\.gemini\config\skills\game-translator-rpgmaker\`
   - `renpy-walkthrough-guide` -> `C:\Users\ADMIN\.gemini\config\skills\renpy-walkthrough-guide\`
+  - `renpy-texture-upscaler` -> `C:\Users\ADMIN\.gemini\config\skills\renpy-texture-upscaler\`
 - **GitHub Status**: Pushed to `https://github.com/vbth7777/game-translator-skills` (branch `master`).
