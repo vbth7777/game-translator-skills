@@ -43,6 +43,14 @@ Quy trình nâng cấp đồ họa, làm nét texture và Live2D tự động ch
   1. **Ảnh tĩnh $\ge 1080p$ (như trong Ren'Py PAWGVERSE $1920 \times 1080$, $1920 \times 2511$)**: Áp dụng SSAA Lanczos downsampling là hoàn hảo nhất, triệt tiêu 100% răng cưa và vừa khít layout.
   2. **Ảnh tĩnh $< 1080p$**: **Kích hoạt Guardrail tự động**: BẮT BUỘC giữ nguyên Native 2x (không được thu nhỏ bằng SSAA) để bảo toàn nét vẽ mịn màng, đồng thời dùng template `templates/renpy_hd_override.rpy` hoặc `Transform(zoom=0.5)` để Ren'Py tự scale bằng phần cứng khi hiển thị.
 
+### 🌟 Bài học 7: Giao Thức Bắt Buộc Sao Lưu Bản Gốc 100% (Pristine Backup First & 1-Click Restore)
+> [!CAUTION]
+> **ĐIỀU KIỆN TIÊN QUYẾT BẤT KHẢ XÂM PHẠM**:
+> Tuyệt đối không bao giờ được phép ghi đè, sửa đổi, thay thế hoặc upscale bất kỳ tệp đồ họa hay archive RPA nào khi chưa hoàn tất sao lưu bản gốc (Pristine Backup) 100%.
+> - **Cơ chế sao lưu**: Thư mục `backup_textures/originals/` lưu trữ bản gốc từng file ảnh, đồng thời các archive RPA luôn được tạo bản sao lưu `.rpa.bak` trước khi repack.
+> - **Cơ chế phòng thủ chủ động (Backup Guard)**: Engine `batch_upscale.py` tích hợp lớp bảo vệ thời gian thực: trước khi ghi đè bất kỳ file nào vào `game/`, nếu phát hiện file gốc chưa có bản sao lưu trong `backup_textures/originals/`, engine sẽ tự động copy bảo lưu ngay lập tức.
+> - **Khôi phục khẩn cấp trong 1 click**: Nếu phát hiện bất kỳ lỗi thị giác, lệch khung hình hay vỡ bố cục, chỉ cần chạy 1 lệnh duy nhất `python scripts/restore_backup.py --game-dir <DIR>` để hoàn nguyên 100% trạng thái ban đầu của game trong 3 giây.
+
 ---
 
 ## 2. Giao Thức Phân Chia Subagent Bắt Buộc (Mandatory Subagents)
@@ -122,15 +130,21 @@ python scripts/generate_comparison_catalog.py
 ```bash
 python scripts/repack_archive.py --game-dir "D:/Games/MyRenPyGame" --archive archive.rpa --clean-loose
 ```
-*Tác dụng*: Tự động sao lưu `archive.rpa.original_backup`, nhúng các texture đã upscale vào file RPA mới, kiểm tra tính toàn vẹn và dọn dẹp các tệp tạm để giải phóng dung lượng ổ cứng.
+*Tác dụng*: Tự động sao lưu `archive.rpa.bak`, nhúng các texture đã upscale vào file RPA mới, kiểm tra tính toàn vẹn và dọn dẹp các tệp tạm để giải phóng dung lượng ổ cứng.
+
+### Bước 6: Khôi Phục Khẩn Cấp Trong 1 Click (Safety Rollback)
+```bash
+python scripts/restore_backup.py --game-dir "D:/Games/MyRenPyGame"
+```
+*Tác dụng*: Hoàn nguyên 100% tài nguyên gốc trong 3 giây: phục hồi ảnh rời từ `backup_textures/originals/`, xóa các tệp đè tạm thời và khôi phục các tệp archive `.rpa` từ `.bak`.
 
 ---
 
 ## 5. Tiêu Chuẩn Nghiệm Thu Kỹ Thuật (Quality Checklist)
+- [ ] **Bản sao lưu nguyên vẹn (Pristine Backup First)**: Luôn kiểm tra `backup_textures/originals/` và `archive.rpa.bak` tồn tại đầy đủ trước khi tiến hành nghiệm thu.
 - [ ] **100% Độ phủ (Zero Missing Textures)**: Không bỏ sót bất kỳ model Live2D chiến đấu, model phụ, multi-sheet texture (`texture_01.png`), hoặc ảnh nền nào.
 - [ ] **Zero 2x Zoom Bug**: Mọi ảnh tĩnh (UI, logo, wallpaper menu, CG) hiển thị vừa vặn hoàn hảo trên viewport, không bị phóng to hay cắt mép.
 - [ ] **1080p SSAA Guardrail Enforcement**: Tuyệt đối không ép thu nhỏ bằng SSAA trên ảnh $< 1080p$ để ngăn ngừa triệt để lỗi rỗ nét / biến thành pixel game.
 - [ ] **Khử Viền Alpha (Zero Halo)**: Độ trong suốt quanh rìa nhân vật mềm mại, không có viền đen hoặc vạch răng cưa.
 - [ ] **Ren'Py Lint Exit Code 0**: Engine Ren'Py nạp dữ liệu hoàn hảo, không có cảnh báo xung đột transform hoặc thiếu file.
-- [ ] **Bản sao lưu nguyên vẹn**: Luôn duy trì `archive.rpa.original_backup` và thư mục `backup_textures/original_textures/`.
 

@@ -16,6 +16,7 @@ import sys
 import json
 import time
 import argparse
+import shutil
 from pathlib import Path
 import cv2
 
@@ -174,6 +175,16 @@ def run_batch_upscale(
 
         # Save to live game directory for zero-touch filesystem override
         if deploy_live:
+            # MANDATORY BACKUP GUARD: Guarantee pristine original backup exists before writing
+            if dest_game_path.exists():
+                backup_root = game_path / 'backup_textures' / 'originals'
+                backup_root.mkdir(parents=True, exist_ok=True)
+                safe_name = rel_path.replace('/', '__').replace('\\', '__')
+                backup_file = backup_root / safe_name
+                if not backup_file.exists():
+                    shutil.copy2(str(dest_game_path), str(backup_file))
+                    print(f"  [Backup Guard] Protected original asset to: {backup_file.name}")
+
             dest_game_path.parent.mkdir(parents=True, exist_ok=True)
             cv2.imwrite(str(dest_game_path), out_img)
 

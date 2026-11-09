@@ -31,6 +31,9 @@
    - BẮT BUỘC chạy `audit_dialogue_coverage.py` trước khi báo cáo hoàn thành. Đảm bảo 100% tệp kịch bản đạt độ phủ và không có tệp nào bị lỗi định dạng (single-line escaped string).
 6. **MANDATORY WALKTHROUGH QC PROTOCOL**:
    - BẮT BUỘC phải có Subagent Quality Check (`walkthrough-qc-verifier`) kiểm tra từng hình ảnh (chống đè chữ, tràn textbox, lệch vị trí nhân vật) và kiểm tra tính phi lý của các bước trước khi bàn giao cẩm nang hướng dẫn cho người dùng.
+7. **MANDATORY PRISTINE BACKUP & 1-CLICK RESTORE MANDATE**:
+   - **BẮT BUỘC SAO LƯU BẢN GỐC TRƯỚC KHI CAN THIỆP**: Nghiêm cấm ghi đè, sửa đổi, thay thế hoặc upscale bất kỳ tệp đồ họa hay tài nguyên game nào khi chưa tạo bản sao lưu nguyên bản (Pristine Backup) 100%.
+   - Mọi skill upscale (`renpy-texture-upscaler`, `rpgmaker-texture-upscaler`) phải tự động sao lưu ảnh gốc vào `backup_textures/` và bắt buộc tích hợp kịch bản `restore_backup.py` cho phép hoàn tác (rollback) nguyên trạng tức thì trong 1 click khi xảy ra sự cố thị giác (rỗ ảnh, vỡ layout, lệch UV, hoặc lem viền).
 
 ---
 
@@ -122,6 +125,7 @@
   - `scripts/gpu_upscaler.py`: DirectML + ONNX Real-ESRGAN engine with dual-plane alpha preservation and tiling.
   - `scripts/batch_upscale.py`: Master GPU batch runner with Dual-Path Strategy (Live2D 4K vs Static SSAA Lanczos).
   - `scripts/repack_archive.py`: Streaming RPA 3.0/2.0 packer with original backup and atomic swap.
+  - `scripts/restore_backup.py`: 1-Click safety rollback engine reverting loose files and RPA archives.
   - `scripts/audit_upscale_qc.py`: Automated QC auditor (100% coverage, 2x zoom bug check, alpha halos).
   - `scripts/generate_comparison_catalog.py`: Side-by-side Before/After visual comparison generator.
   - `templates/renpy_hd_override.rpy`: Ren'Py template for HD cache expansion and dynamic scaling.

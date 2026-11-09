@@ -38,9 +38,13 @@ Quy trình nâng cấp đồ họa, làm nét CG sự kiện, tranh minh họa H
 - **`characters/`**: Spritesheet bước đi. An toàn với hook `Sprite_Character`.
 - **`tilesets/`**: Map tileset ($48 \times 48$). Cần chú ý vì grid gạch có thể bị lem viền nếu tilemap engine không căn chỉnh subpixel.
 
-### 🌟 Bài học 5: Cơ Chế Sao Lưu & Khôi Phục 1-Click (`restore_backup.py`)
-- Mọi tệp gốc trước khi can thiệp đều được sao lưu nguyên vẹn vào `backup_textures/original_textures/`.
-- Nếu phát sinh bất kỳ lỗi hiển thị hoặc người dùng muốn quay về bản gốc, chỉ cần chạy 1 lệnh `restore_backup.py` để khôi phục byte-for-byte trong 5 giây.
+### 🌟 Bài học 5: Giao Thức Bắt Buộc Sao Lưu Bản Gốc 100% & Khôi Phục 1-Click (`restore_backup.py`)
+> [!CAUTION]
+> **ĐIỀU KIỆN TIÊN QUYẾT BẤT KHẢ XÂM PHẠM (BACKUP-FIRST MANDATE)**:
+> Tuyệt đối không bao giờ được phép ghi đè, sửa đổi, thay thế hoặc upscale bất kỳ tệp đồ họa nào khi chưa tạo bản sao lưu nguyên bản (Pristine Backup) 100%.
+> - Mọi tệp gốc trước khi can thiệp đều được tự động sao lưu nguyên vẹn vào `backup_textures/original_textures/`.
+> - Kịch bản `batch_upscale.py` tích hợp sẵn lớp bảo vệ Backup Guard: trước khi thay thế bất kỳ texture nào, nếu phát hiện bản gốc chưa được backup, script sẽ tự động tạo backup ngay lập tức.
+> - Nếu phát sinh bất kỳ lỗi hiển thị, rỗ hạt hoặc người dùng muốn quay về bản gốc, chỉ cần chạy 1 lệnh `restore_backup.py` để khôi phục byte-for-byte trong 5 giây.
 
 ---
 

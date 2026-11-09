@@ -12,6 +12,7 @@ import sys
 import time
 import json
 import argparse
+import shutil
 from pathlib import Path
 
 # Add script directory to path
@@ -159,6 +160,14 @@ def run_batch_upscale(
                 raise ValueError(f"Unknown mode: {mode}")
 
             new_h, new_w = result_img.shape[:2]
+
+            # MANDATORY BACKUP GUARD: Guarantee pristine original backup exists before writing/replacing
+            orig_backup_dir = backup_root / "original_textures"
+            backup_dest = orig_backup_dir / rel_path
+            if not backup_dest.exists() and full_path.exists():
+                backup_dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(str(full_path), str(backup_dest))
+                print(f"  [Backup Guard] Protected original texture to: {backup_dest}")
 
             # 3. Save to temporary file then atomic replace
             tmp_path = str(full_path) + ".up_tmp"
